@@ -24,12 +24,18 @@ tabela <-
 
 ## Download
 
-UA <- "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36 Edg/114.0.1823.51"
+ua <- "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36 Edg/114.0.1823.51" # nolint: line_length_linter.
 
 purrr::walk(seq(1, nrow(tabela)), purrr::possibly(~ {
-	httr::GET(
-		paste0("https://sjur-servicos.tse.jus.br/sjur-servicos/rest/download/pdf/", tabela$cod_dec[[.x]]),
-		httr::add_headers("User-Agent" = UA),
-		httr::write_disk(paste0("DATA/DECISOES/", tabela$cod_dec[[.x]], ".pdf"), T)
-	)
+  httr::GET(
+    paste0(
+      "https://sjur-servicos.tse.jus.br/sjur-servicos/rest/download/pdf/",
+      tabela$cod_dec[[.x]]
+    ),
+    httr::add_headers("User-Agent" = ua),
+    httr::write_disk(
+      paste0("DATA/DECISOES/", tabela$cod_dec[[.x]], ".pdf"),
+      TRUE
+    )
+  )
 }, NULL, quiet = FALSE), .progress = list(type = "tasks"))
