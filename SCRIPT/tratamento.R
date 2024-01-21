@@ -77,7 +77,7 @@ textos <- readtext::readtext(
   dplyr::rename(cod_dec = doc_id)
 
 textos$cod_dec <- textos$cod_dec |>
-  stringr::str_extract('\\d+')
+  stringr::str_extract("\\d+")
 
 # Remove tudo antes do voto (... é o relatório)
 textos$text <-
@@ -109,5 +109,5 @@ tse_tokens <-
 tse_tokens |>
   decJ::dicionario.Criar(
     n = 6,
-    'DATA/DIC/'
+    "DATA/DIC/"
   )
