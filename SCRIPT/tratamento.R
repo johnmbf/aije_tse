@@ -3,25 +3,17 @@
 ## Não remover os acentos (pode atrapalhar a lematização no iramuteq)
 ## Criar novos dicionários com os acentos (os dicionários atuais trabalham com base em texto sem acentos) # nolint
 
-# Remover rodapé e cabecalho
+# Remover rodapé e cabecalho ----
 pdf <- list.files("DATA/DECISOES/", pattern = "*.pdf", full.names = TRUE)
-word <- pdf |>
-  stringr::str_replace_all("\\.pdf", "\\.docx") |>
-  stringr::str_replace_all("DATA/DECISOES/", "DATA/DECISOES/")
 
-purrr::walk2(pdf, word, ~ {
-  # Extrair o texto do PDF
+tabela <- purrr::map_df(pdf, ~ {
   texto <- tabulizer::extract_text(
-    .x, # arquivo
-    1:pdftools::pdf_length(.x) # extrair da primeira à última página
+    .x,
+    1:pdftools::pdf_length((.x))
   )
-
-  # Remover o cabeçalho e o rodapé
   texto_tratado <- lapply(texto, function(pagina) {
-    # Separar as linhas do texto
     linhas <- strsplit(pagina, "\n")[[1]]
 
-    # Excluir as linhas que representam o cabeçalho e o rodapé
     if (stringr::str_detect(.x, "_B") == TRUE) {
       # arquivos tipo B tem apenas 4 linhas de cabeçalho
       rodape <- 2
@@ -52,47 +44,32 @@ purrr::walk2(pdf, word, ~ {
       linhas_tratadas <-
         linhas[-length(linhas)]
     }
-    # Cria um novo objeto sem o cabeçalho e o rodapé
-    texto_novo <- paste(linhas_tratadas, collapse = "\n")
 
+    texto_novo <- paste(linhas_tratadas, collapse = "\n")
     return(texto_novo)
   })
-
-  # Cria um documento
-  documento <- officer::read_docx()
-
-  for (pagina in texto_tratado) {
-    documento <- documento |>
-      officer::body_add_par(pagina) |>
-      officer::body_add_par("")
-  }
-
-  print(documento, target = .y)
-}, .progress = list(type = "tasks"))
+  data <- data.frame(
+    doc = stringr::str_extract(.x, "\\d+"),
+    text = paste0(texto_tratado, collapse = "\n")
+  )
+}, .progress = TRUE)
 
 # Importar para o R
-textos <- readtext::readtext(
-  "DATA/DECISOES/*.docx"
-) |>
-  dplyr::rename(cod_dec = doc_id)
 
-textos$cod_dec <- textos$cod_dec |>
-  stringr::str_extract("\\d+")
-
-# Remove tudo antes do voto (... é o relatório)
+# Remove tudo antes do voto (... é o relatório) ----
 textos$text <-
   textos$text |>
   stringr::str_remove(
     "[\\s\\S]*É\\so\\srelatório"
   )
 
-# Cria um corpus
+# Cria um corpus ----
 tse_corpus <- quanteda::corpus(
   textos,
-  docid_field = "cod_dec"
+  docid_field = "doc"
 )
 
-# Cria tokens
+# Cria tokens ----
 tse_tokens <-
   quanteda::tokens(
     tse_corpus,
@@ -105,7 +82,7 @@ tse_tokens <-
   ) |>
   quanteda::tokens_tolower()
 
-# Uniformiza através da criação de dicionários
+# Uniformiza através da criação de dicionários ----
 dicionario <- read.delim("DATA/DIC/dicionario.txt", header = FALSE)
 tse_tokens <-
   quanteda::tokens_compound(
