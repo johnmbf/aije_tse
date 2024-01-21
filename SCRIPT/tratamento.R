@@ -117,3 +117,6 @@ tse_tokens |>
     n = 5,
     "DATA/DIC/"
   )
+
+## os dicionários foram criados considerando um corpus com acentos
+## (melhor aproveitamento no iramuteq)
