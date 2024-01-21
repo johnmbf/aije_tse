@@ -106,8 +106,14 @@ tse_tokens <-
   quanteda::tokens_tolower()
 
 # Uniformiza através da criação de dicionários
+dicionario <- read.delim("DATA/DIC/dicionario.txt", header = FALSE)
+tse_tokens <-
+  quanteda::tokens_compound(
+    tse_tokens,
+    pattern = quanteda::phrase(dicionario$V1)
+  )
 tse_tokens |>
   decJ::dicionario.Criar(
-    n = 6,
+    n = 5,
     "DATA/DIC/"
   )
