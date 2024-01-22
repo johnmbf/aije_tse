@@ -54,19 +54,40 @@ tabela <- purrr::map_df(pdf, ~ {
   )
 }, .progress = TRUE)
 
-# Importar para o R
+# saveRDS(tabela, "DATA/tabela.rds")
+tabela <- readRDS("DATA/tabela.rds")
 
-# Remove tudo antes do voto (... é o relatório) ----
-textos$text <-
-  textos$text |>
-  stringr::str_remove(
-    "[\\s\\S]*É\\so\\srelatório"
-  )
+# Remover o relatório ----
+
+tabela <- readRDS('DATA/tabela.rds')
+
+tabela$text <- purrr::map(seq_along(tabela$text), ~{
+  posicao <- stringr::str_locate(
+    tabela$text[[.x]],
+    "VOTO\\r"
+  )[1]
+  if (!is.na(posicao)) {
+    tabela$text[[.x]] <- substr(
+      tabela$text[[.x]],
+      posicao + 4,
+      nchar(tabela$text[[.x]])
+  )} else {
+    posicao <- stringr::str_locate(
+      tabela$text[[.x]],
+      "VOTO\\s"
+    )[1]
+    tabela$text[[.x]] <- tabela$text[[.x]] |>
+    substr(posicao + 4, nchar(tabela$text[[.x]]))
+  }
+})
+
+tabela$text <- as.character(tabela$text)
 
 # Cria um corpus ----
 tse_corpus <- quanteda::corpus(
-  textos,
-  docid_field = "doc"
+  tabela,
+  docid_field = "doc",
+  text_field = "text"
 )
 
 # Cria tokens ----
@@ -97,3 +118,23 @@ tse_tokens |>
 
 ## os dicionários foram criados considerando um corpus com acentos
 ## (melhor aproveitamento no iramuteq)
+
+# Salvar no iramuteq
+# Criar um arquivo para ser salvo no iramuteq
+
+iramuteq <- sapply(tse_tokens, paste, collapse = " ") |> as.data.frame() |> tibble::rownames_to_column()
+
+names(iramuteq) <- c('cod_dec', 'tratado')
+
+iramuteq <-
+  iramuteq |>
+  dplyr::mutate(
+    codigo = paste0(
+      "\n****",
+      " *dec_",
+      cod_dec
+    )
+  ) |>
+  dplyr::relocate(codigo, tratado)
+
+readr::write_delim(iramuteq, "DATA/iramuteq.txt", "\n", col_names = FALSE, quote = 'none')
