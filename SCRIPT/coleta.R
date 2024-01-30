@@ -19,7 +19,7 @@ tabela <- purrr::map_dfr(seq_along(dados$content), ~ {
 
 tabela <-
   tabela |> dplyr::filter(
-    lubridate::year(data_dec) >= 2018
+    lubridate::year(as.Date(data_dec, "%d/%m/%Y")) >= 2018
   )
 
 ## Download
