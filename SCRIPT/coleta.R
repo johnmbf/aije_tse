@@ -17,13 +17,8 @@ tabela_dados <- purrr::map_dfr(seq_along(dados$content), ~ {
 
 # Filtra apenas as decisões a partir de 2018
 
-<<<<<<< HEAD
 tabela_dados <-
   tabela_dados |> dplyr::filter(
-=======
-tabela <-
-  tabela |> dplyr::filter(
->>>>>>> b8547701733218fb985d0b9535a4ba21d098a20b
     lubridate::year(as.Date(data_dec, "%d/%m/%Y")) >= 2018
   )
 
@@ -51,8 +46,3 @@ purrr::walk(seq(1, nrow(tabela_dados)), purrr::possibly(~ {
       TRUE
     )
   )
-  
-  # Verifique o conteúdo da resposta, se necessário
-  # print(content(response))
-  
-}, NULL, quiet = FALSE), .progress = list(type = "tasks"))
