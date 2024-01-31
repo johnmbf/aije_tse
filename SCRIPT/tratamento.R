@@ -119,6 +119,9 @@ tse_tokens |>
 ## os dicionários foram criados considerando um corpus com acentos
 ## (melhor aproveitamento no iramuteq)
 
+# Lê a tabela dados para obtenção de variáveis
+tabela_dados <- readRDS("DATA/backup_dados.rds")
+
 # Salvar no iramuteq
 # Criar um arquivo para ser salvo no iramuteq
 
@@ -132,9 +135,13 @@ iramuteq <-
     codigo = paste0(
       "\n****",
       " *dec_",
-      cod_dec
+      cod_dec,
+      " *rel_",
+      tabela_dados$relator,
+      " *ano_",
+      tabela_dados$data_dec
     )
   ) |>
   dplyr::relocate(codigo, tratado)
 
-readr::write_delim(iramuteq, "DATA/iramuteq.txt", "\n", col_names = FALSE, quote = 'none')
+readr::write_delim(iramuteq, "DATA/iramuteq_2.txt", "\n", col_names = FALSE, quote = 'none')
