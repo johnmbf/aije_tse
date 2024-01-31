@@ -26,6 +26,10 @@ tabela_dados <-
 
 tabela_dados$data_dec <- lubridate::year(lubridate::dmy(tabela_dados$data_dec))
 
+# Retira o sobrenome dos Ministros
+
+tabela_dados$relator <- stringr::str_extract(tabela_dados$relator, "\\b\\w+")
+
 # Salva um backup da tabela de dados
 
 saveRDS(tabela_dados, "DATA/backup_dados.rds")
