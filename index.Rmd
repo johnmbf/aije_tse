@@ -1,0 +1,92 @@
+---
+title: "O uso do IRaMuTeQ para análise de decisões judiciais"
+subtitle: "Exemplo de aplicação nas Ações de Investigação Judicial Eleitoral do Tribunal Superior Eleitoral"
+description: |
+  Esse site é destinado a demonstrar o procedimento utilizado na pesquisa a ser apresentada no V Congresso Internacional de Direito Constitucional e Filosofia Politica.
+author:
+  - name: Jonathan Morais Barcellos Ferreira
+    affiliation: Universidade Federal do Rio Grande
+  - name: Gabriel Delias de Sousa Simões
+    affiliation: Universidade Federal do Rio Grande
+output: distill::distill_article
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(eval = FALSE)
+```
+
+O código utilizado pode ser encontrado [aqui](SCRIPT/), e os dados [aqui](DATA/).
+
+# Coleta das decisões judiciais
+
+O primeiro passo é coletar os dados de interesse: as decisões do Tribunal Superior Eleitoral (TSE) as Ações de Investigação Judicial Eleitoral (AIJE). O portal de jurisprudência do TSE possui reCaptcha o que nos impediu de realizar a raspagem direta no site. Por isso, criamos um arquivo `json` com os dados extraído do portal.
+
+A busca no [portal de jurisprudência do TSE](https://jurisprudencia.tse.jus.br/#/jurisprudencia/pesquisa) foi feita com os seguintes parâmetros: Classes: AIJE; Acórdão: verdadeiro; e Resolução: verdadeiro.
+
+Após criar o arquivo [`aije_tse.json`](DATA/aije_tse.json) fizemos a leitura e a criação de uma tabela com os dados que nos interessava.
+
+```{r}
+dados <- jsonlite::read_json("DATA/aije_tse.json")
+
+tabela_dados <- purrr::map_dfr(seq_along(dados$content), ~ {
+  tabela_dados <- data.frame(
+    cod_dec = dados$content[[.x]]$codigoDecisao,
+    data_dec = dados$content[[.x]]$dataDecisao,
+    sig_c = dados$content[[.x]]$siglaClasse,
+    desc_c = dados$content[[.x]]$descricaoClasse,
+    tipo_proc = dados$content[[.x]]$nomeTipoProcesso,
+    relator = dados$content[[.x]]$relator[[1]]$nome
+  )
+}, .progress = TRUE)
+```
+
+Como nos interessava apenas as decisões tomadas a partir de 2018, filtramos os dados, criamos uma variável apenas com o ano e deletamos o sobrenome dos Ministros:
+
+```{r}
+tabela_dados <-
+  tabela_dados |> dplyr::filter(
+    lubridate::year(as.Date(data_dec, "%d/%m/%Y")) >= 2018
+  )
+
+tabela_dados$data_dec <- lubridate::year(lubridate::dmy(tabela_dados$data_dec))
+
+tabela_dados$relator <- stringr::str_extract(tabela_dados$relator, "\\b\\w+")
+```
+
+Com isso obtivemos a seguinte tabela:
+
+```{r, eval=TRUE, echo=FALSE}
+readRDS("DATA/backup_dados.rds") |>
+  DT::datatable()
+```
+
+A tabela contém o código da decisão que foi utilizado para baixar os arquivos
+
+```{r}
+ua <- "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36 Edg/114.0.1823.51" # nolint: line_length_linter.
+
+purrr::walk(seq(1, nrow(tabela_dados)), purrr::possibly(~ {
+  response <- httr::GET(
+    paste0(
+      "https://sjur-servicos.tse.jus.br/sjur-servicos/rest/download/pdf/",
+      tabela_dados$cod_dec[[.x]]
+    ),
+    httr::add_headers("User-Agent" = ua),
+    httr::write_disk(
+      paste0("DATA/DECISOES/", tabela_dados$cod_dec[[.x]], ".pdf"),
+      TRUE
+    )
+  )}))
+```
+
+Os arquivos foram salvos na pasta [`DATA/DECISOES`](DATA/DECISOES/).
+
+# Tratamento das decisões judiciais
+
+# IRaMuTeQ
+
+
+
+
+
+

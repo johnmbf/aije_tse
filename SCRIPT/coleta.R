@@ -49,4 +49,4 @@ purrr::walk(seq(1, nrow(tabela_dados)), purrr::possibly(~ {
       paste0("DATA/DECISOES/", tabela_dados$cod_dec[[.x]], ".pdf"),
       TRUE
     )
-  )
+  )}))
