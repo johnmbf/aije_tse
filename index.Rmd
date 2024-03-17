@@ -284,4 +284,4 @@ Ao fim, a função "readr::write_delim()" salva o dataframe no formato de texto 
 
 ## Inserção do txt, configurações iniciais de análise, Reinert - CHD, AFC. 
 
-Após finalizada a etapa do tratamento de texto, para a realização das análises do corpus tratato pelo software, adicionamos a 
+Após finalizada a etapa do tratamento de texto, para a realização das análises do corpus tratado pelo software, adicionamos o arquivo de texto ao software com as seguintes configurações de análise:
