@@ -286,9 +286,9 @@ Ao fim, a função "readr::write_delim()" salva o dataframe no formato de texto 
 
 Após finalizada a etapa do tratamento de texto, para a realização das análises do corpus tratado pelo software, adicionamos o arquivo de texto ao software com as seguintes configurações de análise:
 
-Definimos os caracteres para a configuração "UTF-8 - all languagues", modelo mais amplo de codificação de caracteres ASCII para interterpretação pela linguagem binária dos processadores computacionais.
+Definimos os caracteres para a configuração "UTF-8 - all languagues", modelo mais amplo de codificação de caracteres ASCII para interterpretação pela linguagem binária dos processadores de computador.
 
-Inserimos o idioma utilizado e selecionamos o dicionário padrão para o Português criado pela Universidade Federal de Santa Catarina.
+Inserimos o idioma utilizado - português - e selecionamos o dicionário padrão para o Português criado pela Universidade Federal de Santa Catarina.
 
 Ademais, definimos a pasta de saída dos arquivos gerados pelo software, selecionamos os marcadores de texto de acordo com o que realizamos na etapa de tratamento do corpus ("****") e utilizamos da definição padrão para o comprimento dos segmentos de textos (ST), 40 caracteres. Além disso, mantemos as configurações padrões do IRAMUTEQ para análise do corpus textual.
 
